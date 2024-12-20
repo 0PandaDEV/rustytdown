@@ -22,8 +22,6 @@ A lightweight and efficient YouTube video downloader written in Rust. This tool 
 rustytdown = "0.1.0"
 ```
 
-Example code:
-
 ```rust
 use rustytdown::YouTubeDownloader;
 
