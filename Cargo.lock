@@ -897,6 +897,7 @@ dependencies = [
 name = "rustytdown"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "futures-util",
  "indicatif",
  "reqwest",
