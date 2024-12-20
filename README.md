@@ -17,7 +17,9 @@ A lightweight and efficient YouTube video downloader written in Rust. This tool 
 
 ## Installation
 
-### From crates.io```bash
+### From crates.io
+
+```bash
 cargo install rustytdown
 ```
 
@@ -54,4 +56,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
