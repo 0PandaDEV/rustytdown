@@ -15,22 +15,6 @@ A lightweight and efficient YouTube video downloader written in Rust. This tool 
 - Rust 1.75 or higher
 - FFmpeg (required for audio conversion)
 
-## Installation
-
-### From crates.io
-
-```bash
-cargo install rustytdown
-```
-
-### From source
-
-```bash
-git clone https://github.com/0pandadev/rustytdown
-cd rustytdown
-cargo install --path .
-```
-
 ## Usage
 
 ```toml
