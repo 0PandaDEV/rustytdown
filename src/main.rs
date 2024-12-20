@@ -2,7 +2,7 @@ use futures_util::stream::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::{Client, header};
 use serde_json::Value;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tokio::{fs::File, io::AsyncWriteExt};
 
 async fn get_video_url(
@@ -68,6 +68,14 @@ async fn get_video_url(
         .or_else(|| streaming_data["adaptiveFormats"].as_array())
         .ok_or("No formats or adaptiveFormats found")?;
 
+    println!("\nAvailable formats:");
+    for (i, format) in formats.iter().enumerate() {
+        let quality = format["quality"].as_str().unwrap_or("unknown");
+        let mime_type = format["mimeType"].as_str().unwrap_or("unknown");
+        let bitrate = format["bitrate"].as_u64().unwrap_or(0) / 1000;
+        println!("{}. Quality: {}, Type: {}, Bitrate: {}kbps", i + 1, quality, mime_type, bitrate);
+    }
+
     let video_url = formats
         .iter()
         .filter_map(|format| {
@@ -83,6 +91,7 @@ async fn get_video_url(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let start_time = Instant::now();
     let client = Client::builder().timeout(Duration::from_secs(20)).build()?;
 
     let video_id = "ZbwEuFb2Zec";
@@ -97,6 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .progress_chars("#>-")
     );
 
+    let ttfb_start = Instant::now();
     let res = client
         .get(&url)
         .header(
@@ -105,6 +115,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .send()
         .await?;
+
+    let ttfb = ttfb_start.elapsed();
+    println!("Time to First Byte: {:.2?}", ttfb);
 
     let total_size = res.content_length().unwrap_or(0);
     pb.set_length(total_size);
@@ -122,7 +135,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         file.write_all(&chunk).await?;
     }
 
-    pb.finish_with_message("Download complete");
+    let total_duration = start_time.elapsed();
+    pb.finish_with_message(format!(
+        "Download complete! TTFB: {:.2?}, Total time: {:.2?}",
+        ttfb,
+        total_duration
+    ));
 
     Ok(())
 }
