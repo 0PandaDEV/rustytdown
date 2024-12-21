@@ -223,7 +223,7 @@ impl YouTubeDownloader {
         Ok(video_path)
     }
 
-    pub async fn stream_video(&self, video_id: &str) -> Result<Pin<Box<dyn Stream<Item = Result<Bytes, reqwest::Error>> + Send>>, Box<dyn std::error::Error>> {
+    pub async fn stream_video(&self, video_id: &str) -> Result<(Pin<Box<dyn Stream<Item = Result<Bytes, reqwest::Error>> + Send>>, u64), Box<dyn std::error::Error>> {
         let url = self.get_video_url(video_id).await?;
 
         let res = self.client
@@ -235,6 +235,7 @@ impl YouTubeDownloader {
             .send()
             .await?;
 
-        Ok(Box::pin(res.bytes_stream()))
+        let content_length = res.content_length().unwrap_or(0);
+        Ok((Box::pin(res.bytes_stream()), content_length))
     }
 }
